@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ciąg Fibonacciego</title>
+    <style>
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: #1a1a2e;
+            font-family: Arial, sans-serif;
+            color: white;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Dodanie tła z przezroczystym PNG z folderu pliki/photos */
+        .background-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('pliki/photos/tlo.png') no-repeat center center;
+            background-size: cover;
+            opacity: 0.5; /* Możesz dostosować przejrzystość */
+            z-index: -1; /* Tło znajduje się za resztą elementów */
+        }
+
+        .glow {
+            position: absolute;
+            width: 100vw;
+            height: 100vh;
+            top: 0;
+            left: 0;
+            background: radial-gradient(circle, rgba(79, 209, 197, 0.2) 10%, rgba(26, 26, 46, 0.8) 70%);
+            z-index: -1;
+        }
+
+        .container {
+            text-align: center;
+            position: relative;
+            z-index: 10;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #4fd1c5;
+            margin-bottom: 1rem;
+        }
+
+        .gallery {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .gallery img {
+            width: 200px;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(79, 209, 197, 0.5);
+        }
+
+        .buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .buttons a {
+            text-decoration: none;
+            padding: 1rem 2rem;
+            background: #4fd1c5;
+            color: #1a1a2e;
+            border-radius: 5px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            display: inline-block;
+            cursor: pointer;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .new-container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            max-width: 600px;
+            width: 90%;
+            position: relative;
+            z-index: 10;
+            box-shadow: 0 0 20px rgba(79, 209, 197, 0.5);
+        }
+
+        .input-group {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            justify-content: center;
+        }
+
+        input {
+            padding: 0.5rem;
+            font-size: 1rem;
+            border: 2px solid #4fd1c5;
+            border-radius: 5px;
+            background: transparent;
+            color: white;
+            width: 150px;
+        }
+
+        button {
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
+            background: #4fd1c5;
+            border: none;
+            border-radius: 5px;
+            color: #1a1a2e;
+            cursor: pointer;
+        }
+
+        .result {
+            text-align: center;
+            line-height: 1.6;
+            word-wrap: break-word;
+            max-width: 100%;
+            overflow-x: auto;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #4fd1c5;
+            padding: 10px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .description {
+            text-align: center;
+            margin-top: 1rem;
+            color: #4fd1c5;
+            font-size: 0.9rem;
+        }
+
+        .fact {
+            text-align: center;
+            margin-top: 1rem;
+            font-size: 0.8rem;
+            color: #ffcc00;
+        }
+
+        .back {
+            text-decoration: none;
+            color: #4fd1c5;
+            font-size: 1.2rem;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 2rem;
+        }
+
+        .back:hover {
+            color: #1a1a2e;
+        }
+    </style>
+</head>
+<body>
+    <!-- Dodanie tła z przezroczystym PNG z folderu pliki/photos -->
+    <div class="background-image"></div>
+    
+    <div class="glow"></div>
+    <div class="container" id="main-page">
+        <h1>Ciąg Fibonacciego</h1>
+        <div class="gallery">
+            <img src="pliki/photos/fibonacci1.jpg" alt="Fibonacci Spiral 1">
+            <img src="pliki/photos/fibonacci2.jpg" alt="Fibonacci Spiral 2">
+            <img src="pliki/photos/fibonacci3.jpg" alt="Fibonacci Spiral 3">
+        </div>
+        <div class="buttons">
+            <a href="#" onclick="showFibonacciPage()">Generator</a>
+            <a href="pliki/PDF/FibonacciPDF.pdf" target="_blank">Prezentacja PDF</a>
+        </div>
+    </div>
+
+    <div class="container hidden" id="fibonacci-page">
+        <div class="new-container">
+            <h1>Ciąg Fibonacciego</h1>
+            <div class="input-group">
+                <input type="number" id="count" min="1" placeholder="Podaj liczbę wyrazów" value="10">
+                <button onclick="generateSequence()">Generuj</button>
+            </div>
+            <div class="result" id="result"></div>
+            <div class="description">Każda liczba to suma dwóch poprzednich</div>
+            <div class="fact" id="fact"></div>
+        </div>
+        <a href="#" onclick="showMainPage()" class="back">Powrót na stronę główną</a>
+    </div>
+
+    <script>
+        function generateSequence() {
+            const count = parseInt(document.getElementById('count').value);
+            if (count < 1) {
+                alert('Wprowadź liczbę większą od zera');
+                return;
+            }
+
+            let sequence = [0, 1];
+            for (let i = 2; i < count; i++) {
+                sequence[i] = sequence[i-1] + sequence[i-2];
+            }
+
+            document.getElementById('result').innerHTML = sequence.join(', ');
+            showFact();
+        }
+
+        function showFact() {
+            const facts = [
+                "Ciąg Fibonacciego występuje w układzie nasion słonecznika!", 
+                "Złota proporcja (1.618) jest ściśle powiązana z liczbami Fibonacciego!", 
+                "Liczby Fibonacciego są używane w analizie giełdowej!", 
+                "Natura kocha Fibonacciego: szyszki, muszle i galaktyki mają ten wzór!"
+            ];
+            document.getElementById('fact').innerText = facts[Math.floor(Math.random() * facts.length)];
+        }
+
+        function showFibonacciPage() {
+            document.getElementById('main-page').classList.add('hidden');
+            document.getElementById('fibonacci-page').classList.remove('hidden');
+        }
+
+        function showMainPage() {
+            document.getElementById('fibonacci-page').classList.add('hidden');
+            document.getElementById('main-page').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
